@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Common/" />
+  <Folder Name="/src/Common/Helper/">
+    <Project Path="src/Common/Helper/Helpers/Helpers.csproj" Id="8bacb3fc-a4b0-4601-9f1a-a3e145606239" />
+  </Folder>
+  <Folder Name="/src/Common/MessageBrokers/">
+    <Project Path="src/MessageBrokers/EventBusBrokers/EventBusBrokers.csproj" />
+  </Folder>
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/YarganCore/YarganCore.csproj" />
+  </Folder>
+  <Folder Name="/src/Rule/">
+    <Project Path="src/Rule/RuleAPI/RuleAPI.csproj" Id="37a4328d-d06d-4234-aa4e-a0aa4835f069" />
+    <Project Path="src/Rule/RuleApplication/RuleApplication.csproj" Id="50494305-7c10-4ee2-8fad-00094339b660" />
+  </Folder>
+  <Folder Name="/src/Satops/">
+    <Project Path="src/Satops/SatopsAPI/SatopsAPI.csproj" Id="6bbc63d0-6667-40f4-8577-4e060fcda75d" />
+    <Project Path="src/Satops/SatopsApplication/SatopsApplication.csproj" Id="6c66cd3f-2a81-4491-b86f-58180cbd42ed" />
+  </Folder>
+</Solution>

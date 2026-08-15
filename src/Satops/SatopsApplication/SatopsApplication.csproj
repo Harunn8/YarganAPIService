@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageReference Include="SGP.NET" Version="1.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Helper\Helpers\Helpers.csproj" />
+    <ProjectReference Include="..\..\Core\YarganCore\YarganCore.csproj" />
+    <ProjectReference Include="..\..\MessageBrokers\EventBusBrokers\EventBusBrokers.csproj" />
+    <ProjectReference Include="..\..\Rule\RuleApplication\RuleApplication.csproj" />
+  </ItemGroup>
+
+</Project>
