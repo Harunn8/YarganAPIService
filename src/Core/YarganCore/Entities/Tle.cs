@@ -21,6 +21,7 @@ namespace YarganCore.Entities
 
         [Column(TypeName = "timestamp without time zone")]
         public DateTime EndAt { get; set; }
+        public int SetupInterval { get; set; }
     }
 
     public class TleData

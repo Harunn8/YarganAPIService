@@ -15,5 +15,7 @@ namespace YarganCore.Repositories.Base
         public Task<bool> Delete(Guid id);
         public Task<bool> DeleteAll();
         public Task<T> UpdateAsync(T entity);
+
+        public Task<List<T>> UpdateRange(List<T> entity);
     }
 }
