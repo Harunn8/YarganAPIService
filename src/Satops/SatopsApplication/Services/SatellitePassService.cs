@@ -10,6 +10,7 @@ using SatopsApplication.HttpClients.Clients;
 using RuleApplication.Models;
 using RuleApplication.Responses;
 using SatopsApplication.HttpClients.Clients.Base;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace SatopsApplication.Services
 {
@@ -152,6 +153,19 @@ namespace SatopsApplication.Services
             }
 
             return true;
+        }
+
+        private bool IsOverlap(DateTime pass1Aos, DateTime pass1Los, DateTime pass2Aos, DateTime pass2Los, int setupIntervalSeconds)
+        {
+            TimeSpan setup = TimeSpan.FromSeconds(setupIntervalSeconds);
+
+            bool pass1IsCompletelyBeforePass2 = (pass1Los + setup) <= pass2Aos;
+
+            bool pass2IsCompletelyBeforePass1 = (pass2Los + setup) <= pass1Aos;
+
+            bool doesNotOverlap = pass1IsCompletelyBeforePass2 || pass2IsCompletelyBeforePass1;
+
+            return !doesNotOverlap;
         }
 
         public async Task<bool> DeleteAllPasses()

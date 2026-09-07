@@ -95,5 +95,23 @@ namespace YarganCore.Repositories
 
             return entity;
         }
+
+        public async Task<List<T>> UpdateRange(List<T> entity)
+        {
+            var response = new List<T>();
+
+            foreach(var data in entity)
+            {
+                var obj = await GetById(data.Id);
+
+                if (obj == null) return null;
+
+                _dbContext.Set<T>().Update(data);
+
+                response.Add(data);
+            }
+
+            return response;
+        }
     }
 }
