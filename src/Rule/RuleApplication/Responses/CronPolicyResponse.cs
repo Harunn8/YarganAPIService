@@ -1,4 +1,6 @@
-﻿namespace RuleApplication.Responses
+﻿using YarganCore.Entities;
+
+namespace RuleApplication.Responses
 {
     public class CronPolicyResponse
     {
@@ -11,5 +13,6 @@
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
         public bool IsRunning { get; set; }
+        public Scripts PolicyScript { get; set; }
     }
 }

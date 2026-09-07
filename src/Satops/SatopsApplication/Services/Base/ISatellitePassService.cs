@@ -9,7 +9,7 @@ namespace SatopsApplication.Services.Base
         Task<List<SatellitePassResponse>> GetAllPasses();
         Task<SatellitePassResponse> AddPass(AddSatelliteModel addModel);
         Task<List<SatellitePassResponse>> AddPasses(List<AddSatelliteModel> addModel);
-        public Task<List<SatellitePassResponse>> AddPassesFromTle(List<SatellitePassResponseFromTle> addPassesFromTleModel);
+        public Task<List<SatellitePassResponse>> AddPassesFromTle(List<AddPassesScheduleModel> addPassesFromTleModel);
         Task<SatellitePassResponse> UpdatePass(UpdateSatelliteModel updateModel);
         Task<bool> DeletePassbyId(Guid id);
         Task<bool> DeleteAllPasses();

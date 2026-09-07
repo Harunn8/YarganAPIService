@@ -12,6 +12,7 @@ namespace SatopsApplication.Mapper
             CreateMap<SatellitePasses, SatellitePassResponse>().ReverseMap();
             CreateMap<SatellitePasses, AddSatelliteModel>().ReverseMap();
             CreateMap<SatellitePasses, UpdateSatelliteModel>().ReverseMap();
+            CreateMap<SatellitePasses, AddPassesScheduleModel>().ReverseMap();
 
             CreateMap<SatellitePasses, SatellitePassResponseFromTle>().ReverseMap();
             CreateMap<SatellitePassResponse, SatellitePassResponseFromTle>().ReverseMap();

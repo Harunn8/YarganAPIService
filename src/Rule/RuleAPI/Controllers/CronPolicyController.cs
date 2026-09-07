@@ -31,6 +31,14 @@ namespace RuleAPI.Controllers
             return Ok(response);
         }
 
+        [HttpGet("getactivejobs")]
+        public async Task<ActionResult> GetActiveJobs()
+        {
+            var response = await _service.GetActiveCronJob();
+
+            return Ok(response);
+        }
+
         [HttpPost("add")]
         public async Task<ActionResult> AddCronPolicy([FromBody] AddCronPolicyModel addCronPolicyModel)
         {
@@ -47,7 +55,7 @@ namespace RuleAPI.Controllers
             return Ok(response);
         }
 
-        [HttpPut("startorstop")]
+        [HttpPut("startorstop/{id},{isStart}")]
         public async Task<ActionResult> StartOrStopCronPolicy(Guid id, bool isStart)
         {
             var response = await _service.StartOrStopCronPolicy(id, isStart);

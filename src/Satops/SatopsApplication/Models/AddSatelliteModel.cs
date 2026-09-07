@@ -7,5 +7,6 @@
         public DateTime AOS { get; set; }
         public DateTime LOS { get; set; }
         public double MaxElevation { get; set; }
+        public bool IsImportant { get; set; }
     }
 }

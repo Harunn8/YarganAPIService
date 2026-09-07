@@ -28,6 +28,10 @@ namespace SatopsApplication.Services
             _mapper = mapper;
             _tleService = tleService;
             _ruleapiClient = ruleApiClient;
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
         }
 
         public async Task<SatellitePassResponse> AddPass(AddSatelliteModel addModel)
@@ -48,82 +52,103 @@ namespace SatopsApplication.Services
             return _mapper.Map<List<SatellitePassResponse>>(response);
         }
 
-        // Doğrudan tüm geçişleri Track olarak seçerek ekleyecektir.
-        public async Task<List<SatellitePassResponse>> AddPassesFromTle(List<SatellitePassResponseFromTle> addPassesFromTleModel)
+        // Db'ye eklenecek geçişlerin çakışma, öncelikli gibi durumları göz önüne alarak yapılandırmasını sağlayan methottur.
+        public async Task<List<SatellitePassResponse>> AddPassesFromTle(List<AddPassesScheduleModel> addPassesFromTleModel)
         {
+            var willBeTrackPasses = new List<SatellitePasses>();
+
             var passes = await GetAllPasses();
 
             if (passes.Count != 0) await DeleteAllPasses();
 
-            var entities = _mapper.Map<List<SatellitePasses>>(addPassesFromTleModel);
+            var willBeScheulerPasses = _mapper.Map<List<SatellitePasses>>(addPassesFromTleModel).Where(x => x.AOS > DateTime.Now).ToList();
 
-            foreach(var entity in entities)
-            {
-                if (entity.AOS <= DateTime.Now)
-                {
-                    Console.WriteLine($"{entity.Name} to skipped");
-
-                    entity.Status = PassStatus.Skipped;
-                }
-
-                else entity.Status = PassStatus.SelectTracking;
-            }
-
-            var response = await _repository.AddPasses(entities);
+            var response = await _repository.AddPasses(willBeTrackPasses);
 
             return _mapper.Map<List<SatellitePassResponse>>(response);
         }
 
 
-        // Db'den bulunan geçişlerin, Tracking status'ları üzerinden işlemleri yapmaktadır. Db'ye AddPasses metodu ile TleService'den gelen geçişler eklenmektedir.
+        // Track seçilen geçişlerin çakışma ve öncelik durumlarına göre geçiş planlamalarını yapar ve işlemleri yürütür.
         public async Task<bool> AutoStartOrStop(bool status)
         {
-            if (!status) await DisableJobs();
-            
-            _mqtt.PublishMessageAsync("Satops/Jobs", "Auto Scheduler Started");
-
-            var passes = await _repository.GetQueryable(x => x.IsDeleted == false && x.Status == PassStatus.SelectTracking);
-
-            if(passes.Count == 0)
+            if (!status)
             {
-                Log.Logger.Warning("Could not found any passes");
-                return false;
+                var response = await DisableJobs();
+
+                return response;
             }
 
-            foreach(var pass in passes)
+            _mqtt.PublishMessageAsync("Satops/Jobs", "Auto Scheduler Started");
+
+            var willBeSchedulePasses = await _repository.GetQueryable(x => x.AOS > DateTime.Now && x.Status == PassStatus.SelectTracking);
+
+            if (willBeSchedulePasses.Count == 0) return false;
+
+            var willBeTrackPasses = new List<SatellitePasses>();
+
+            var tleConfiguration = await _tleService.GetTle();
+
+            for (int i = 0; i < willBeSchedulePasses.Count; i++)
             {
-                if (pass.AOS <= DateTime.Now) continue;
+                var currentPass = willBeSchedulePasses[i];
 
-                var passScript = await CreateSatopsScript(pass);
+                var nextPass = willBeSchedulePasses[i + 1] == null ? null : willBeSchedulePasses[i + 1];
 
-                if(pass == null)
+                // Çakışık geçiş durumu varsa, öncelikli geçişleri kontrol eder, yoksa son geçiş önceliklidir.
+                if (nextPass != null && IsOverlap(currentPass.AOS, currentPass.LOS, nextPass.AOS, nextPass.LOS, tleConfiguration.SetupInterval))
                 {
-                    Log.Warning($"{pass.Name} could not create.");
-                    continue;
+                    var isImportentPass = willBeSchedulePasses[i].IsImportent ? nextPass : currentPass;
+
+                    isImportentPass.Status = PassStatus.Skipped;
+
+                    Log.Information($"{isImportentPass.Name} AOS {isImportentPass.AOS} skipped");
+
+                    _mqtt.PublishMessageAsync("Satops/Jobs", $"{isImportentPass.Name} AOS {isImportentPass.AOS} skipped");
+
+                    willBeTrackPasses.Add(isImportentPass);
+
+                    if(currentPass.Status != PassStatus.Skipped) willBeTrackPasses.Add(currentPass);                
                 }
 
-                pass.PolicyScriptId = passScript.Id;
-                pass.Status = PassStatus.Queued;
+                willBeTrackPasses.Add(currentPass);
+            }
 
-                await _repository.UpdateAsync(pass);
+            foreach(var pass in willBeTrackPasses)
+            {
+                var policyScript = await CreateSatopsScript(pass);
 
-                var cronPolicyAddModel = new AddCronPolicyModel
+                if(policyScript != null)
                 {
-                    Name = $"{pass.Name}_{pass.AOS}",
-                    CronFormat = string.Empty,
-                    ForOnce = true,
-                    StartAt = pass.AOS,
-                    EndAt = pass.LOS,
-                    PolicyScriptId = pass.PolicyScriptId
-                };
+                    var cronPolicyModel = new AddCronPolicyModel
+                    {
+                        Name = policyScript.Name,
+                        CronFormat = null,
+                        ForOnce = true,
+                        StartAt = pass.AOS.AddSeconds(-tleConfiguration.SetupInterval),
+                        EndAt = pass.LOS,
+                        PolicyScriptId = policyScript.Id
+                    };
 
-                var cronPolicyResponse = await _ruleapiClient.AddCronPolicy(cronPolicyAddModel);
+                    var addCronPolicyResponse = await _ruleapiClient.AddCronPolicy(cronPolicyModel);
 
-                if (cronPolicyResponse == null) return false;
+                    if (addCronPolicyResponse == null)
+                    {
+                        _mqtt.PublishMessageAsync("Satops/Jobs", $"{pass.Name} cron job could not created");
 
-                var startCronPolicyResponse = await _ruleapiClient.StartCronPolicy(cronPolicyResponse.Id);
+                        Log.Error($"{pass.Name} cron job could not create");
 
-                Log.Information($"{pass.Name} queued");
+                        continue;
+                    }
+
+                    var cronPolicyResponse = await _ruleapiClient.StartCronPolicy(addCronPolicyResponse.Id);
+
+                    if (cronPolicyResponse) _mqtt.PublishMessageAsync("Satops/Jobs", $"{pass.Name} job created");
+
+                    Log.Information($"{pass.Name} cron job created");
+                }
+
+                Log.Error($"{pass.Name} policy script could not create");
             }
 
             return true;
@@ -133,18 +158,20 @@ namespace SatopsApplication.Services
         {
             var response = await _repository.DeleteAll();
 
+            _mqtt.PublishMessageAsync("Satops/Jobs", "Passes Disabled");
+
             return response == true ? true : false;
         }
 
         private async Task<PolicyScriptResponse> CreateSatopsScript(SatellitePasses pass)
         {
-            if (pass.PolicyScriptId == Guid.Empty) pass.PolicyScriptId = Guid.Parse("019ffd4d-cee1-77a4-a26b-e13787083c2f"); 
+            if (pass.PolicyScriptId == Guid.Empty) pass.PolicyScriptId = Guid.Parse("019ffd4d-cee1-77a4-a26b-e13787083c2f");
 
             var policyScript = await _ruleapiClient.GetPolicyScript(pass.PolicyScriptId);
 
             // Herhangi bir script seçimi yoksa default script atanır.
             if (policyScript == null) policyScript = await _ruleapiClient.GetPolicyScript(Guid.Parse("019ffd4d-cee1-77a4-a26b-e13787083c2f"));
-            
+
             var defaultScript = @$"SendMqttMessage(""Satops/Jobs"",""Pass Started"");
                                     WriteLogToConsole($""{pass.Name} go to start position."");
                                     var snrStauts = GetData(""{Convert.ToString(Guid.NewGuid())}"");
@@ -170,13 +197,26 @@ namespace SatopsApplication.Services
             return policyScriptResponse;
         }
 
+        private bool IsOverlap(DateTime pass1AOS, DateTime pass1LOS, DateTime pass2AOS, DateTime pass2LOS, int setupConfigurationTime)
+        {
+            DateTime pass1Start = pass1AOS;
+            DateTime pass1End = pass1LOS.AddSeconds(setupConfigurationTime);
+            DateTime pass2Start = pass2AOS;
+            DateTime pass2End = pass2LOS;
+
+            return (pass1Start <= pass2Start && pass2Start <= pass1End) ||
+                   (pass1Start <= pass2End && pass2End <= pass1End) ||
+                   (pass2Start <= pass1Start && pass1Start <= pass2End) ||
+                   (pass2Start <= pass1End && pass1End <= pass2End);
+        }
+
         private async Task<bool> DisableJobs()
         {
             var passes = await _repository.GetQueryable(x => x.Status == PassStatus.Queued || x.Status == PassStatus.Tracking || x.Status == PassStatus.SelectTracking);
 
             if (passes.Count == 0) return false;
 
-            foreach(var pass in passes) pass.Status = PassStatus.Canceled;
+            foreach (var pass in passes) pass.Status = PassStatus.Canceled;
 
             _mqtt.PublishMessageAsync("Satops/Jobs", "All Passes Canceled");
 

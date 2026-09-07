@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EventBusBrokers.Services.Base;
+using Newtonsoft.Json;
 using RuleApplication.Models;
 using RuleApplication.Responses;
 using RuleApplication.Services.Base;
@@ -37,6 +38,13 @@ namespace RuleApplication.Services
             return response == true ? true : false;
         }
 
+        public async Task<List<CronPolicyResponse>> GetActiveCronJob()
+        {
+            var response = await _repository.GetActiveJobs();
+
+            return _mapper.Map<List<CronPolicyResponse>>(response);
+        }
+
         public async Task<List<CronPolicyResponse>> GetAllCronPolicy()
         {
             var response = await _repository.GetAllAsync();
@@ -46,23 +54,25 @@ namespace RuleApplication.Services
 
         public async Task<CronPolicyResponse> GetCronPolicyById(Guid id)
         {
-            var response = await _repository.GetById(id);
+            var response = await _repository.GetCronJobById(id);
 
             return _mapper.Map<CronPolicyResponse>(response);
         }
 
         public async Task<bool> StartOrStopCronPolicy(Guid id, bool isStart)
         {
-            var cronPolicy = await _repository.GetById(id);
+            var cronPolicy = await _repository.GetCronJobById(id);
 
             if (cronPolicy == null) return false;
 
             cronPolicy.IsRunning = isStart;
             cronPolicy.UpdateDate = DateTime.Now;
 
-            var response = _mapper.Map<CronPolicyResponse>(await _repository.UpdateAsync(cronPolicy));
+            var response = JsonConvert.SerializeObject(_mapper.Map<CronPolicyResponse>(await _repository.UpdateAsync(cronPolicy)));
 
-            _mqtt.PublishMessageAsync("RE/StartOrStopCronPolicy", $"{response}");
+            if(!isStart) _mqtt.PublishMessageAsync("RuleEngine/DeleteCronJob", $"{response}");
+
+            else _mqtt.PublishMessageAsync("RuleEngine/Run", $"{response}");
 
             return response != null ? true : false;
         }

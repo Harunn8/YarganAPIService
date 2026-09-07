@@ -72,11 +72,15 @@ namespace YarganCore.Repositories
             return response == null ? null : response;
         }
 
-        public async Task<List<T>> GetQueryable(Expression<Func<T, bool>> filter)
+        public async Task<List<T>> GetQueryable(Expression<Func<T, bool>> filter, bool disableTracking = true)
         {
-            var response = await _dbContext.Set<T>().Where(filter).AsNoTracking().ToListAsync();
+            IQueryable<T> query = _dbContext.Set<T>();
 
-            return response;
+            if (disableTracking) query = query.AsNoTracking();
+
+            if (filter != null) query = query.Where(filter);
+
+            return query.ToList();
         }
 
         public async Task<T> UpdateAsync(T entity)

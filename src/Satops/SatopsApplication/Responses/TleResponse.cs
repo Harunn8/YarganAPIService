@@ -11,5 +11,6 @@ namespace SatopsApplication.Responses
         public double Altitude { get; set; }
         public double MinElevation { get; set; }
         public List<TleData> TleData { get; set; }
+        public int SetupInterval { get; set; }
     }
 }

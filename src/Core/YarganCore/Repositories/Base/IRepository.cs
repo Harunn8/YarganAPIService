@@ -11,7 +11,7 @@ namespace YarganCore.Repositories.Base
         public Task<T> AddAsync(T entity);
         public Task<List<T>> GetAllAsync();
         public Task<T> GetById(Guid id);
-        public Task<List<T>> GetQueryable(Expression<Func<T, bool>> filter);
+        public Task<List<T>> GetQueryable(Expression<Func<T, bool>> filter, bool disableTracking = true);
         public Task<bool> Delete(Guid id);
         public Task<bool> DeleteAll();
         public Task<T> UpdateAsync(T entity);

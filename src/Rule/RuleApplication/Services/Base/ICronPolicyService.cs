@@ -11,5 +11,6 @@ namespace RuleApplication.Services.Base
         Task<CronPolicyResponse> UpdateCronPolicy(UpdateCronPolicyModel updateCronPolicyModel);
         Task<bool> DeleteCronPolicy(Guid id);
         Task<bool> StartOrStopCronPolicy(Guid id, bool isStart);
+        Task<List<CronPolicyResponse>> GetActiveCronJob();
     }
 }

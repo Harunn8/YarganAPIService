@@ -17,6 +17,7 @@ namespace YarganCore.Entities
         public bool IsTracked { get; set; }
         public PassStatus Status { get; set; }
         public Guid PolicyScriptId {  get; set; }
+        public bool IsImportent { get; set; }
     }
 
     public enum PassStatus

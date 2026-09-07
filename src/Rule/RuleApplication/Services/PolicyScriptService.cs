@@ -73,7 +73,7 @@ namespace RuleApplication.Services
 
             var response = JsonConvert.SerializeObject(_mapper.Map<PolicyScriptResponse>(script));
 
-            _mqtt.PublishMessageAsync("RE/RunPolicyScript", $"{response}");
+            _mqtt.PublishMessageAsync("RuleEngine/RunForOnce", $"{response}");
 
             return true;
         }

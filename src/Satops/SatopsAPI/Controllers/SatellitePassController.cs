@@ -57,7 +57,7 @@ namespace SatopsAPI.Controllers
         }
 
         [HttpPost("addpassesfromtle")]
-        public async Task<ActionResult> AddPassesFromTle([FromBody] List<SatellitePassResponseFromTle> satellitePassResponseFromTles)
+        public async Task<ActionResult> AddPassesFromTle([FromBody] List<AddPassesScheduleModel> satellitePassResponseFromTles)
         {
             var response = await _service.AddPassesFromTle(satellitePassResponseFromTles);
 
