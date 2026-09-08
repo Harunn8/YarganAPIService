@@ -211,19 +211,6 @@ namespace SatopsApplication.Services
             return policyScriptResponse;
         }
 
-        private bool IsOverlap(DateTime pass1AOS, DateTime pass1LOS, DateTime pass2AOS, DateTime pass2LOS, int setupConfigurationTime)
-        {
-            DateTime pass1Start = pass1AOS;
-            DateTime pass1End = pass1LOS.AddSeconds(setupConfigurationTime);
-            DateTime pass2Start = pass2AOS;
-            DateTime pass2End = pass2LOS;
-
-            return (pass1Start <= pass2Start && pass2Start <= pass1End) ||
-                   (pass1Start <= pass2End && pass2End <= pass1End) ||
-                   (pass2Start <= pass1Start && pass1Start <= pass2End) ||
-                   (pass2Start <= pass1End && pass1End <= pass2End);
-        }
-
         private async Task<bool> DisableJobs()
         {
             var passes = await _repository.GetQueryable(x => x.Status == PassStatus.Queued || x.Status == PassStatus.Tracking || x.Status == PassStatus.SelectTracking);

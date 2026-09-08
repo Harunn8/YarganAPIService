@@ -16,6 +16,10 @@ namespace RuleApplication.Mapper
             CreateMap<CronPolicies,AddCronPolicyModel>().ReverseMap();
             CreateMap<CronPolicies, UpdateCronPolicyModel>().ReverseMap();
             CreateMap<CronPolicies, CronPolicyResponse>().ReverseMap();
+
+            CreateMap<Alarms, AddAlarmModel>().ReverseMap();
+            CreateMap<Alarms, AlarmResponse>().ReverseMap();
+            CreateMap<Alarms, UpdateAlarmModel>().ReverseMap();
         }
     }
 }

@@ -61,9 +61,13 @@ builder.Services.AddScoped<CronPolicyRepository>();
 
 builder.Services.AddScoped<IRepository<Scripts>, ScriptRepository>();
 
+builder.Services.AddScoped<AlarmRepository>();
+
 builder.Services.AddScoped<IPolicyScriptService, PolicyScriptService>();
 
 builder.Services.AddScoped<ICronPolicyService, CronPolicyService>();
+
+builder.Services.AddScoped<IAlarmService, AlarmService>();
 
 Log.Information("Rule API started");
 

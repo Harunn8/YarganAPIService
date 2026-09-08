@@ -44,4 +44,16 @@ namespace RuleApplication.Validations
             RuleFor(x => x.ForOnce).NotEmpty().WithMessage("ForOnce is required.");
         }
     }
+
+    public class AlarmValidations : AbstractValidator<AddAlarmModel>
+    {
+        public AlarmValidations()
+        {
+            RuleFor(x => x.Name).NotEmpty().NotNull().WithMessage("Alarm name is requiered");
+            RuleFor(x => x.PagDeviceId).NotEmpty().NotNull().WithMessage("Pag device id is requiered");
+            RuleFor(x => x.FirstCondition).NotEmpty().NotNull().WithMessage("First condition is requiered");
+            RuleFor(x => x.FirstThreshold).NotEmpty().NotNull().WithMessage("First threshold is requiered");
+            RuleFor(x => x.Severity).NotEmpty().NotNull().WithMessage("Severity is requiered");
+        }
+    }
 }
