@@ -13,5 +13,8 @@ namespace DeviceApplication.Services.Base
         Task<PagDeviceResponse> AddPagDevice(AddPagDeviceModel addModel);
         Task<PagDeviceResponse> UpdatePagDevice(UpdatePagDeviceModel model);
         Task<bool> DeletePagDevice(Guid id);
+        Task<bool> StartOrStopCommunication(Guid id, bool isStart);
+        Task<bool> StartOrStopMultiDevice(List<Guid> pagDeviceIds, bool isStart);
+        Task<List<PagDeviceResponse>> GetActivePagDevices();
     }
 }

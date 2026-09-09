@@ -17,8 +17,7 @@
         Login,
         Delete,
         SendCommand,
-        StartCommunication,
-        StopCommunication,
+        StartOrStopCommunication,
         LogOut
     }
 }

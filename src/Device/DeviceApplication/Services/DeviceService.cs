@@ -152,6 +152,69 @@ namespace DeviceApplication.Services
 
             var response = await _repository.UpdateAsync(entity);
 
+            #region Userlog
+            var logModel = new UserLogs
+            {
+                Description = $"{response.Name} created",
+                MethodName = nameof(UpdateDevice),
+                AppName = nameof(DeviceService),
+                TimeStamp = DateTime.Now,
+                UserName = "Administrator",
+                LogType = LogType.Update
+            };
+
+            await _userLog.SetEventLog(logModel);
+
+            #endregion
+
+            return _mapper.Map<DeviceResponse>(response);
+        }
+
+        public async Task<DeviceResponse> UpdateSNMPDevice(UpdateSNMPDeviceModel updateSnmpDeviceModel)
+        {
+            var entity = _mapper.Map<Devices>(updateSnmpDeviceModel);
+
+            var response = await _repository.UpdateAsync(entity);
+
+            #region Userlog
+            var logModel = new UserLogs
+            {
+                Description = $"{response.Name} created",
+                MethodName = nameof(UpdateSNMPDevice),
+                AppName = nameof(DeviceService),
+                TimeStamp = DateTime.Now,
+                UserName = "Administrator",
+                LogType = LogType.Update
+            };
+
+            await _userLog.SetEventLog(logModel);
+
+            #endregion
+
+            return _mapper.Map<DeviceResponse>(response);
+        }
+
+        public async Task<DeviceResponse> UpdateTCPDevice(UpdateTCPModel updateTcpDeviceModel)
+        {
+            var entity = _mapper.Map<Devices>(updateTcpDeviceModel);
+
+            var response = await _repository.UpdateAsync(entity);
+
+            #region Userlog
+            var logModel = new UserLogs
+            {
+                Description = $"{response.Name} created",
+                MethodName = nameof(UpdateTCPDevice),
+                AppName = nameof(DeviceService),
+                TimeStamp = DateTime.Now,
+                UserName = "Administrator",
+                LogType = LogType.Update
+            };
+
+            await _userLog.SetEventLog(logModel);
+
+            #endregion
+
             return _mapper.Map<DeviceResponse>(response);
         }
     }

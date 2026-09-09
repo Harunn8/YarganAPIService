@@ -14,5 +14,7 @@ namespace DeviceApplication.Services.Base
         Task<DeviceResponse> AddTCPDevice(AddTCPDeviceModel addTcpModel);
         Task<DeviceResponse> UpdateDevice(UpdateDeviceModel updateModel); // SNMP ve TCP modelleri sonradan eklenecektir.
         Task<bool> DeleteDevice(Guid id);
+        Task<DeviceResponse> UpdateSNMPDevice(UpdateSNMPDeviceModel updateSnmpDeviceModel);
+        Task<DeviceResponse> UpdateTCPDevice(UpdateTCPModel updateTcpDeviceModel);
     }
 }

@@ -20,6 +20,9 @@ namespace DeviceApplication.Mapper
             CreateMap<PagDevices, AddPagDeviceModel>().ReverseMap();
             CreateMap<PagDevices, UpdatePagDeviceModel>().ReverseMap();
             CreateMap<PagDevices, PagDeviceResponse>().ReverseMap();
+
+            CreateMap<UpdateSNMPDeviceModel, Devices>().ReverseMap();
+            CreateMap<UpdateTCPModel, Devices>().ReverseMap();
         }
     }
 }
