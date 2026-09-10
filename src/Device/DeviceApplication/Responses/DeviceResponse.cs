@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DeviceApplication.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using YarganCore.Entities;

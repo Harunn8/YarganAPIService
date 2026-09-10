@@ -13,6 +13,13 @@ namespace YarganCore.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<Devices> GetDeviceWithRelationById(Guid id)
+        {
+            var response = await _dbContext.Set<Devices>().Where(x => x.Id == id).AsNoTracking().Include(x => x.Pag).FirstOrDefaultAsync();
+
+            return response;
+        }
+
         public async Task<List<Devices>> GetSNMPDevices()
         {
             var response = await _dbContext.Set<Devices>().Where(x => x.CommunicationType == CommunicationType.SNMP).AsNoTracking().ToListAsync();

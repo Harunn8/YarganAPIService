@@ -6,7 +6,7 @@ namespace DeviceApplication.Responses
     {
         public Guid Id {  get; set; }
         public string Name { get; set; }
-        public Guid DeviceId { get; set; }
-        public Devices Device {  get; set; }
+        public List<Guid> DeviceId { get; set; }
+        public List<Devices>? Device {  get; set; }
     }
 }

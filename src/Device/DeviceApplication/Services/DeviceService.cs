@@ -29,10 +29,10 @@ namespace DeviceApplication.Services
             {
                 Name = addSnmpModel.Name,
                 PagId = addSnmpModel.PagId,
-                CommunicationData = JsonConvert.SerializeObject(addSnmpModel.Queries),
+                CommunicationData = JsonConvert.SerializeObject(addSnmpModel),
                 CommunicationType = CommunicationType.SNMP,
                 Version = addSnmpModel.Version,
-                VersionNote = addSnmpModel.VersionNote
+                VersionNote = addSnmpModel.VersionNote,
             };
 
             var response = await _repository.AddAsync(entity);
@@ -52,7 +52,9 @@ namespace DeviceApplication.Services
 
             #endregion
 
-            return _mapper.Map<DeviceResponse>(response);
+            var responseWithRelation = await _repository.GetDeviceWithRelationById(response.Id);
+
+            return _mapper.Map<DeviceResponse>(responseWithRelation);
         }
 
         public async Task<DeviceResponse> AddTCPDevice(AddTCPDeviceModel addTcpModel)

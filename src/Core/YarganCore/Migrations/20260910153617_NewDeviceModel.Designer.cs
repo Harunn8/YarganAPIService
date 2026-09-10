@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using YarganCore.AppDbContext;
@@ -12,13 +13,15 @@ using YarganCore.AppDbContext;
 namespace YarganCore.Migrations
 {
     [DbContext(typeof(YarganAppDbContext))]
-    partial class YarganAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260910153617_NewDeviceModel")]
+    partial class NewDeviceModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -212,7 +215,7 @@ namespace YarganCore.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.PrimitiveCollection<List<Guid?>>("DeviceId")
+                    b.PrimitiveCollection<List<Guid>>("DeviceId")
                         .IsRequired()
                         .HasColumnType("uuid[]");
 

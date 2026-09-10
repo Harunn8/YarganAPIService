@@ -22,7 +22,7 @@ namespace YarganCore.Repositories
 
         public async Task<Pags> GetPagByDeviceId(Guid deviceId)
         {
-            var response = await _dbContext.Set<Pags>().Where(x => x.DeviceId == deviceId).Include(x => x.Device).FirstOrDefaultAsync();
+            var response = await _dbContext.Set<Pags>().Where(x => x.DeviceId.Contains(deviceId)).Include(x => x.Device).FirstOrDefaultAsync();
 
             return response;
         }
