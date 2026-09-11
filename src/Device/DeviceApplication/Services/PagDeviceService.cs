@@ -47,7 +47,9 @@ namespace DeviceApplication.Services
 
             #endregion
 
-            return _mapper.Map<PagDeviceResponse>(response);
+            var pagDeviceResponse = await _repository.GetPagDeviceById(response.Id);
+
+            return _mapper.Map<PagDeviceResponse>(pagDeviceResponse);
         }
 
         public async Task<bool> DeletePagDevice(Guid id)
@@ -79,7 +81,7 @@ namespace DeviceApplication.Services
         // DCM ilk ayağa kalktığında bu endpoint'i kullanacaktır.
         public async Task<List<PagDeviceResponse>> GetActivePagDevices()
         {
-            var pagDevices = (await _repository.GetQueryable(x => x.Id != Guid.Empty && x.InMaintenance && !x.IsDeleted)).ToList();
+            var pagDevices = (await _repository.GetQueryable(x => x.Id != Guid.Empty && !x.InMaintenance && !x.IsDeleted)).ToList();
 
             return _mapper.Map<List<PagDeviceResponse>>(pagDevices);
         }
