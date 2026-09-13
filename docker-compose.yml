@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  ruleapi:
+    image: ${DOCKER_REGISTRY-}ruleapi
+    build:
+      context: .
+      dockerfile: src/Rule/RuleAPI/Dockerfile
+    container_name: rule_api
+    ports:
+      - "5001:80"
+    depends_on:
+      - postgres
+      - mosquitto
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=Yargan;Username=postgres;Password=root
+      - REDIS_HOST=redis
+      - MQTT_HOST=mosquitto
+
+  satopsapi:
+    image: ${DOCKER_REGISTRY-}satopsapi
+    build:
+      context: .
+      dockerfile: src/Satops/SatopsAPI/Dockerfile
+    container_name: satops_api
+    ports:
+      - "5002:80"
+    depends_on:
+      - postgres
+      - mosquitto
+      - ruleapi
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=Yargan;Username=postgres;Password=root
+      - REDIS_HOST=redis
+      - MQTT_HOST=mosquitto
+
+  # --- VERİTABANI VE MESAJLAŞMA SERVİSLERİ ---
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: Yargan
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: Mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
+
+volumes:
+  pgdata:
