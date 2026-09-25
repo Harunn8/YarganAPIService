@@ -69,12 +69,13 @@ builder.Services.AddScoped<IRuleApiHttpClients, RuleApiHttpClients>();
 
 builder.Services.AddScoped<ISatellitePassService, SatellitePassService>();
 
+builder.Services.AddHostedService<SatopsJobs>();
+
 Log.Information("Satops API started");
 
 builder.Services.AddHealthChecks();
 
 builder.Services.AddServiceHealthMonitoring(builder.Configuration);
-
 
 #endregion
 

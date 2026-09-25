@@ -41,6 +41,15 @@ namespace SatopsApplication.HttpClients.Clients
             return policyScriptResponse;
         }
 
+        public async Task<bool> DeletePolicyScript(Guid id)
+        {
+            var response = await _client.DeleteAsync($"{_settings.DeletePolicyScriptUrl}/{id}");
+
+            if (response?.StatusCode != System.Net.HttpStatusCode.OK) return false;
+
+            return true;
+        }
+
         public async Task<List<ActiveTleResponses>> GetActiveTleResponse(string satelliteName)
         {
             List<ActiveTleResponses> tleResponses = new List<ActiveTleResponses>();

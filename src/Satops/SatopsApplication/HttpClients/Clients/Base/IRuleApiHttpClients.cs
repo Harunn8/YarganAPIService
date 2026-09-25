@@ -11,5 +11,6 @@ namespace SatopsApplication.HttpClients.Clients.Base
         public Task<bool> StartCronPolicy(Guid id, bool status = true);
         public Task<CronPolicyResponse> AddCronPolicy(AddCronPolicyModel addModel);
         public Task<List<ActiveTleResponses>> GetActiveTleResponse(string satelliteName);
+        public Task<bool> DeletePolicyScript(Guid id);
     }
 }
