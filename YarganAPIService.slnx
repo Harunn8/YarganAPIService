@@ -10,6 +10,10 @@
   <Folder Name="/src/Core/">
     <Project Path="src/Core/YarganCore/YarganCore.csproj" />
   </Folder>
+  <Folder Name="/src/DataInUse/">
+    <Project Path="src/DataInUse/DataInUseAPI/DataInUseAPI.csproj" Id="0718a8a7-6313-454d-abb7-ffa87bfc0c2f" />
+    <Project Path="src/DataInUse/DataInUseApplication/DataInUseApplication.csproj" Id="e07888da-91d9-4c64-8d04-08fc95460b19" />
+  </Folder>
   <Folder Name="/src/Device/">
     <Project Path="src/Device/DeviceAPI/DeviceAPI.csproj" Id="cbd5c66f-1b63-4f8e-bdcc-fb4aa747b8d4" />
     <Project Path="src/Device/DeviceApplication/DeviceApplication.csproj" Id="0fabd9c7-db64-4cca-be00-35b24bf77f0a" />

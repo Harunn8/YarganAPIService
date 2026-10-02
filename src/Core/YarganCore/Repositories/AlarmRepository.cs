@@ -13,25 +13,9 @@ namespace YarganCore.Repositories
         }
 
         // RuleEngine tarafından kullanılır.
-        public async Task<List<Alarms>> GetAllActiveAlarms()
-        {
-            var response = await _dbContext.Set<Alarms>().Where(x => x.IsActive && !x.IsDeleted).AsNoTracking().ToListAsync();
+        public async Task<List<Alarms>> GetAllActiveAlarms() => await _dbContext.Set<Alarms>().Where(x => x.IsActive && !x.IsDeleted).AsNoTracking().ToListAsync();
+        public async Task<List<Alarms>> GetAlarmsBySeverity(int severity) => await _dbContext.Set<Alarms>().Where(x => x.Severity == severity).AsNoTracking().ToListAsync();
 
-            return response;
-        }
-
-        public async Task<List<Alarms>> GetAlarmsBySeverity(int severity)
-        {
-            var response = await _dbContext.Set<Alarms>().Where(x => x.Severity == severity).AsNoTracking().ToListAsync();
-
-            return response;
-        }
-
-        public async Task<IEnumerable<Alarms>> GetAlarmsByDeviceId(Guid deviceId)
-        {
-            var response = await _dbContext.Set<Alarms>().Where(x => x.PagDeviceId == deviceId).ToListAsync();
-
-            return response;
-        }
+        public async Task<IEnumerable<Alarms>> GetAlarmsByDeviceId(Guid deviceId) => await _dbContext.Set<Alarms>().Where(x => x.PagDeviceId == deviceId).ToListAsync();
     }
 }

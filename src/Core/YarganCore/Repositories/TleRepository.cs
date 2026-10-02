@@ -9,11 +9,6 @@ namespace YarganCore.Repositories
         private readonly YarganAppDbContext _dbContext;
         public TleRepository(YarganAppDbContext dbContext) : base(dbContext) { _dbContext = dbContext; }
         
-        public async Task<Tle> GetTleByDefault()
-        {
-            var response = await _dbContext.Set<Tle>().FirstOrDefaultAsync();
-
-            return response;
-        }
+        public async Task<Tle> GetTleByDefault() => await _dbContext.Set<Tle>().FirstOrDefaultAsync();
     }
 }

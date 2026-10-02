@@ -13,18 +13,8 @@ namespace YarganCore.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<Pags> GetPagByName(string name)
-        {
-            var response = await _dbContext.Set<Pags>().Where(x => string.Equals(x.Name, name)).Include(x => x.Device).FirstOrDefaultAsync();
+        public async Task<Pags> GetPagByName(string name) => await _dbContext.Set<Pags>().Where(x => string.Equals(x.Name, name)).Include(x => x.Device).FirstOrDefaultAsync();
 
-            return response;
-        }
-
-        public async Task<Pags> GetPagByDeviceId(Guid deviceId)
-        {
-            var response = await _dbContext.Set<Pags>().Where(x => x.DeviceId.Contains(deviceId)).Include(x => x.Device).FirstOrDefaultAsync();
-
-            return response;
-        }
+        public async Task<Pags> GetPagByDeviceId(Guid deviceId) => await _dbContext.Set<Pags>().Where(x => x.DeviceId.Contains(deviceId)).Include(x => x.Device).FirstOrDefaultAsync();
     }
 }
