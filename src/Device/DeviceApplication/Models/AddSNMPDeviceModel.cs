@@ -9,14 +9,7 @@
         public string? WriteCommunity { get; set; }
         public string? VersionNote { get; set; }
         public string? Version {  get; set; }
-        public List<SnmpCommunicationData> Queries { get; set; }
-    }
-
-    public class SnmpCommunicationData
-    {
-        public string Oid { get; set; }
-        public string ParameterName { get; set; }
-        public Guid ParameterId { get; set; } = Guid.NewGuid();
+        public List<BaseQueryModel> Queries { get; set; }
     }
 
     public enum SNMPVersion

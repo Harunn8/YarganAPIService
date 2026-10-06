@@ -18,6 +18,10 @@
     <Project Path="src/Device/DeviceAPI/DeviceAPI.csproj" Id="cbd5c66f-1b63-4f8e-bdcc-fb4aa747b8d4" />
     <Project Path="src/Device/DeviceApplication/DeviceApplication.csproj" Id="0fabd9c7-db64-4cca-be00-35b24bf77f0a" />
   </Folder>
+  <Folder Name="/src/Login/">
+    <Project Path="src/Login/LoginAPI/LoginAPI.csproj" Id="ad3e509d-60ea-4074-aeaa-30aa773588ba" />
+    <Project Path="src/Login/LoginApplication/LoginApplication.csproj" Id="cf5209e3-25af-4f99-bdc2-56760553a3fd" />
+  </Folder>
   <Folder Name="/src/Rule/">
     <Project Path="src/Rule/RuleAPI/RuleAPI.csproj" Id="37a4328d-d06d-4234-aa4e-a0aa4835f069" />
     <Project Path="src/Rule/RuleApplication/RuleApplication.csproj" Id="50494305-7c10-4ee2-8fad-00094339b660" />
@@ -25,5 +29,9 @@
   <Folder Name="/src/Satops/">
     <Project Path="src/Satops/SatopsAPI/SatopsAPI.csproj" Id="6bbc63d0-6667-40f4-8577-4e060fcda75d" />
     <Project Path="src/Satops/SatopsApplication/SatopsApplication.csproj" Id="6c66cd3f-2a81-4491-b86f-58180cbd42ed" />
+  </Folder>
+  <Folder Name="/src/User/">
+    <Project Path="src/User/UserAPI/UserAPI.csproj" Id="486581bd-db57-4108-ac56-68025c1e8561" />
+    <Project Path="src/User/UserApplication/UserApplication.csproj" Id="9a7accbe-c3f1-4d69-bf36-821b0df006b1" />
   </Folder>
 </Solution>

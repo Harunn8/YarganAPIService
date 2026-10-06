@@ -63,7 +63,7 @@ namespace DeviceApplication.Services
             {
                 Name = addTcpModel.Name,
                 PagId = addTcpModel.PagId,
-                CommunicationData = JsonConvert.SerializeObject(addTcpModel.Queries),
+                CommunicationData = JsonConvert.SerializeObject(addTcpModel),
                 CommunicationType = CommunicationType.TCP,
                 Version = addTcpModel.Version,
                 VersionNote = addTcpModel.VersionNote

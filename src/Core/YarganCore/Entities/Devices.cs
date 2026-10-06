@@ -11,6 +11,7 @@ namespace YarganCore.Entities
         public string? VersionNote { get; set; }
         public Guid PagId { get; set; }
         public Pags Pag {  get; set; }
+        public IEnumerable<DataInUses> DataInUses { get; set; }
     }
 
     public enum CommunicationType

@@ -6,7 +6,9 @@ namespace DeviceApplication.Models
 {
     public class BaseQueryModel
     {
+        public string Query { get; set; }
         public Guid ParameterId { get; set; } = Guid.NewGuid();
+        public string ParameterName { get; set; }
     }
 
     //public class AlarmInfo

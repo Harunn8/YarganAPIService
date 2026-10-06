@@ -10,7 +10,7 @@ namespace Helpers.UserLogService.Service
 
         public UserLogService(IMongoDatabase database)
         {
-            _logs = database.GetCollection<UserLogs>("Logs");
+            _logs = database.GetCollection<UserLogs>("UserLogs");
         }
 
         public async Task SetEventLog(UserLogs logModel)
