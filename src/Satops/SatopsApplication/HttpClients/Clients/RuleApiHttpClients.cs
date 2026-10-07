@@ -81,18 +81,17 @@ namespace SatopsApplication.HttpClients.Clients
         {
             var response = await _client.GetAsync($"{_settings.GetPolicyScriptUrl}/{id}");
 
+            if (response?.StatusCode != System.Net.HttpStatusCode.OK) return null;
+
             return JsonConvert.DeserializeObject<PolicyScriptResponse>(await response.Content.ReadAsStringAsync());
         }
 
         public async Task<bool> StartCronPolicy(Guid id, bool status = true)
         {
-            var request = new
-            {
-                Id = id,
-                Status = status
-            };
+            // Rule API rotası: PUT api/CronPolicy/startorstop/{id},{isStart}
+            var response = await _client.PutAsync($"{_settings.StartCronPolicyScriptUrl}/{id},{status}", null);
 
-            var response = await _client.PutAsJsonAsync($"{_settings.StartCronPolicyScriptUrl}", request);
+            if (response?.StatusCode != System.Net.HttpStatusCode.OK) return false;
 
             return JsonConvert.DeserializeObject<bool>(await response.Content.ReadAsStringAsync());
         }

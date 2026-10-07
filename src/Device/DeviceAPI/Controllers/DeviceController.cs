@@ -16,7 +16,7 @@ namespace DeviceAPI.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet("getall")]
         public async Task<ActionResult<ApiResponse>> GetAllDevice()
         {
             var response = await _service.GetAllDevice();
@@ -24,7 +24,7 @@ namespace DeviceAPI.Controllers
             return response.Count == 0 ? new ApiResponse(System.Net.HttpStatusCode.NotFound,null,"Devices not found") : new ApiResponse(System.Net.HttpStatusCode.OK,response);
         }
 
-        [HttpGet]
+        [HttpGet("getbyid/{id}")]
         public async Task<ActionResult<ApiResponse>> GetDeviceById(Guid id)
         {
             var response = await _service.GetDeviceById(id);
@@ -32,7 +32,7 @@ namespace DeviceAPI.Controllers
             return response == null ? new ApiResponse(System.Net.HttpStatusCode.NotFound,null,"Device not found") : new ApiResponse(System.Net.HttpStatusCode.OK,response);
         }
 
-        [HttpGet]
+        [HttpGet("getsnmpdevices")]
         public async Task<ActionResult<ApiResponse>> GetSNMPDevices()
         {
             var response = await _service.GetSNMPDevices();
@@ -40,7 +40,7 @@ namespace DeviceAPI.Controllers
             return response.Count == 0 ? new ApiResponse(System.Net.HttpStatusCode.NotFound, null, "Devices not found") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpGet]
+        [HttpGet("gettcpdevices")]
         public async Task<ActionResult<ApiResponse>> GetTCPDevices()
         {
             var response = await _service.GetTCPDevices();
@@ -64,15 +64,15 @@ namespace DeviceAPI.Controllers
             return response == null ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, "Device could not add") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpPut]
+        [HttpPut("update")]
         public async Task<ActionResult<ApiResponse>> UpdateDevice(UpdateDeviceModel updateDeviceModel)
         {
             var response = await _service.UpdateDevice(updateDeviceModel);
 
-            return response != null ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, "Device could not update") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
+            return response == null ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, "Device could not update") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpPut]
+        [HttpPut("updatesnmpdevice")]
         public async Task<ActionResult<ApiResponse>> UpdateSNMPDevice(UpdateSNMPDeviceModel updateSnmpDeviceModel)
         {
             var response = await _service.UpdateSNMPDevice(updateSnmpDeviceModel);
@@ -85,7 +85,7 @@ namespace DeviceAPI.Controllers
         {
             var response = await _service.DeleteDevice(id);
 
-            return response ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, "Device could not delete") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
+            return !response ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, "Device could not delete") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
     }
 }

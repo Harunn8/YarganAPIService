@@ -16,7 +16,7 @@ namespace DeviceAPI.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet("getall")]
         public async Task<ActionResult<ApiResponse>> GetAllPagDevice()
         {
             var response = await _service.GetAllPagDevice();
@@ -24,7 +24,7 @@ namespace DeviceAPI.Controllers
             return response.Count == 0 ? new ApiResponse(System.Net.HttpStatusCode.NotFound, null, "Pag devices not found") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpGet]
+        [HttpGet("getbydeviceid/{deviceId}")]
         public async Task<ActionResult<ApiResponse>> GetPagDevicesByDeviceId(Guid deviceId)
         {
             var response = await _service.GetPagDevicesByDeviceId(deviceId);
@@ -32,7 +32,7 @@ namespace DeviceAPI.Controllers
             return response.Count == 0 ? new ApiResponse(System.Net.HttpStatusCode.NotFound, null, "Pag devices not found") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpGet]
+        [HttpGet("getbypagid/{pagId}")]
         public async Task<ActionResult<ApiResponse>> GetPagDevicesByPagId(Guid pagId)
         {
             var response = await _service.GetPagDevicesByPagId(pagId);
@@ -40,7 +40,7 @@ namespace DeviceAPI.Controllers
             return response.Count == 0 ? new ApiResponse(System.Net.HttpStatusCode.NotFound, null, "Pag devices not found") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpGet]
+        [HttpGet("getbyid/{id}")]
         public async Task<ActionResult<ApiResponse>> GetPagDeviceById(Guid id)
         {
             var response = await _service.GetPagDeviceById(id);
@@ -56,7 +56,7 @@ namespace DeviceAPI.Controllers
             return response == null ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, "Pag device could not add") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpPut]
+        [HttpPut("update")]
         public async Task<ActionResult<ApiResponse>> UpdatePagDevice([FromBody] UpdatePagDeviceModel updateModel)
         {
             var response = await _service.UpdatePagDevice(updateModel);
@@ -64,7 +64,7 @@ namespace DeviceAPI.Controllers
             return response == null ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, "Pag device could not update") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpPut]
+        [HttpPut("startorstop")]
         public async Task<ActionResult<ApiResponse>> StartOrStopDevice(Guid id, bool isStart)
         {
             var response = await _service.StartOrStopCommunication(id, isStart);
@@ -74,7 +74,7 @@ namespace DeviceAPI.Controllers
             return !response ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, $"Pag device could not {status}") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpPut]
+        [HttpPut("startorstopmulti")]
         public async Task<ActionResult<ApiResponse>> StartOrStopMultiDevice(List<Guid> ids, bool isStart)
         {
             var response = await _service.StartOrStopMultiDevice(ids, isStart);
@@ -84,7 +84,7 @@ namespace DeviceAPI.Controllers
             return !response ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, $"Pag devices could not {status}") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpGet]
+        [HttpGet("getactive")]
         public async Task<ActionResult<ApiResponse>> GetActiveDevice()
         {
             var response = await _service.GetActivePagDevices();
