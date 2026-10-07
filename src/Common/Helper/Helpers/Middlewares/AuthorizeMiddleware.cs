@@ -19,6 +19,7 @@ namespace Helpers.Middlewares
             bool isWhitelisted = path.Equals("/api/auth/login", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/scalar") || path.StartsWith("/openapi")
                 || path.Equals("/", StringComparison.OrdinalIgnoreCase)
                 || path.Equals("/favicon.ico", StringComparison.OrdinalIgnoreCase) 
+                || path.Equals("/health", StringComparison.OrdinalIgnoreCase)
                 || path.EndsWith("/login", StringComparison.OrdinalIgnoreCase);
 
             if (isWhitelisted)
