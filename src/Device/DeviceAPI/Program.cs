@@ -82,6 +82,26 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
+#region Authentication
+// Issuer/Audience/SecretKey, LoginService'in token üretirken kullandığı değerlerle aynı olmalı.
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSettings["Audience"],
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!))
+        };
+    });
+#endregion
+
 #region OpenAPI / Scalar
 builder.Services.AddOpenApi(opt =>
 {
@@ -95,12 +115,15 @@ builder.Services.AddOpenApi(opt =>
                 Scheme = "bearer",
                 In = ParameterLocation.Header,
                 BearerFormat = "JWT",
-                Description = "Enter token before use Bearer"
+                Description = "Enter only the token, without the 'Bearer ' prefix"
             }
         };
 
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes = requirements;
+
+        // Scalar'ın Bearer'ı varsayılan seçip token'ı her isteğe eklemesi için
+        document.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("Bearer", document)] = [] }];
 
         return Task.CompletedTask;
     });
