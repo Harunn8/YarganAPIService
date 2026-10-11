@@ -41,6 +41,15 @@ namespace SatopsApplication.HttpClients.Clients
             return policyScriptResponse;
         }
 
+        public async Task<bool> DeleteCronPolicy(Guid id)
+        {
+            var response = await _client.DeleteAsync($"{_settings.DeleteCronPolicyUrl}/{id}");
+
+            if (response?.StatusCode != System.Net.HttpStatusCode.OK) return false;
+
+            return true;
+        }
+
         public async Task<bool> DeletePolicyScript(Guid id)
         {
             var response = await _client.DeleteAsync($"{_settings.DeletePolicyScriptUrl}/{id}");
@@ -79,7 +88,7 @@ namespace SatopsApplication.HttpClients.Clients
 
         public async Task<PolicyScriptResponse> GetPolicyScript(Guid id)
         {
-            var response = await _client.GetAsync($"{_settings.GetPolicyScriptUrl}/{id}");
+            var response = await _client.GetAsync($"{_settings.GetPolicyScriptUrl}/{id}?=");
 
             return JsonConvert.DeserializeObject<PolicyScriptResponse>(await response.Content.ReadAsStringAsync());
         }

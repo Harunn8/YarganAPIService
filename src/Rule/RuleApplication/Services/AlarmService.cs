@@ -66,20 +66,11 @@ namespace RuleApplication.Services
             }
         }
 
-        public async Task<List<AlarmResponse>> GetAlarmsWithDeviceId(Guid id)
-        {
-            return _mapper.Map<List<AlarmResponse>>(await _repository.GetAlarmsByDeviceId(id));
-        }
+        public async Task<List<AlarmResponse>> GetAlarmsWithDeviceId(Guid id) => _mapper.Map<List<AlarmResponse>>(await _repository.GetAlarmsByDeviceId(id));
 
-        public async Task<List<AlarmResponse>> GetAllActiveAlarms()
-        {
-            return _mapper.Map<List<AlarmResponse>>(await _repository.GetAllActiveAlarms());
-        }
+        public async Task<List<AlarmResponse>> GetAllActiveAlarms() => _mapper.Map<List<AlarmResponse>>(await _repository.GetAllActiveAlarms());
 
-        public async Task<List<AlarmResponse>> GetAllAlarm()
-        {
-            return _mapper.Map<List<AlarmResponse>>(await _repository.GetAllAsync());
-        }
+        public async Task<List<AlarmResponse>> GetAllAlarm() => _mapper.Map<List<AlarmResponse>>(await _repository.GetAllAsync());
 
         public async Task<bool> ReSetExecuteAlarm(Guid id)
         {

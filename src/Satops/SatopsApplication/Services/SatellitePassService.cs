@@ -6,11 +6,9 @@ using SatopsApplication.Services.Base;
 using YarganCore.Entities;
 using YarganCore.Repositories;
 using Serilog;
-using SatopsApplication.HttpClients.Clients;
 using RuleApplication.Models;
 using RuleApplication.Responses;
 using SatopsApplication.HttpClients.Clients.Base;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace SatopsApplication.Services
 {
@@ -94,7 +92,7 @@ namespace SatopsApplication.Services
             {
                 var currentPass = willBeSchedulePasses[i];
 
-                var nextPass = willBeSchedulePasses[i + 1] == null ? null : willBeSchedulePasses[i + 1];
+                var nextPass = willBeSchedulePasses.ElementAtOrDefault(i + 1);
 
                 // Çakışık geçiş durumu varsa, öncelikli geçişleri kontrol eder, yoksa son geçiş önceliklidir.
                 if (nextPass != null && IsOverlap(currentPass.AOS, currentPass.LOS, nextPass.AOS, nextPass.LOS, tleConfiguration.SetupInterval))
@@ -179,12 +177,12 @@ namespace SatopsApplication.Services
 
         private async Task<PolicyScriptResponse> CreateSatopsScript(SatellitePasses pass)
         {
-            if (pass.PolicyScriptId == Guid.Empty) pass.PolicyScriptId = Guid.Parse("019ffd4d-cee1-77a4-a26b-e13787083c2f");
+            if (pass.PolicyScriptId == Guid.Empty) pass.PolicyScriptId = Guid.Parse("01a1169e-b0c4-7415-84c2-96a01c464cd6");
 
             var policyScript = await _ruleapiClient.GetPolicyScript(pass.PolicyScriptId);
 
             // Herhangi bir script seçimi yoksa default script atanır.
-            if (policyScript == null) policyScript = await _ruleapiClient.GetPolicyScript(Guid.Parse("019ffd4d-cee1-77a4-a26b-e13787083c2f"));
+            if (policyScript == null) policyScript = await _ruleapiClient.GetPolicyScript(Guid.Parse("01a1169e-b0c4-7415-84c2-96a01c464cd6"));
 
             var defaultScript = @$"SendMqttMessage(""Satops/Jobs"",""Pass Started"");
                                     WriteLogToConsole($""{pass.Name} go to start position."");
@@ -224,26 +222,11 @@ namespace SatopsApplication.Services
             return true;
         }
 
-        public async Task<bool> DeletePassbyId(Guid id)
-        {
-            var response = await _repository.Delete(id);
+        public async Task<bool> DeletePassbyId(Guid id) => await _repository.Delete(id);
 
-            return response == true ? true : false;
-        }
+        public async Task<List<SatellitePassResponse>> GetAllPasses() => _mapper.Map<List<SatellitePassResponse>>(await _repository.GetAllAsync());
 
-        public async Task<List<SatellitePassResponse>> GetAllPasses()
-        {
-            var response = await _repository.GetAllAsync();
-
-            return _mapper.Map<List<SatellitePassResponse>>(response);
-        }
-
-        public async Task<SatellitePassResponse> GetPassById(Guid id)
-        {
-            var response = await _repository.GetById(id);
-
-            return _mapper.Map<SatellitePassResponse>(response);
-        }
+        public async Task<SatellitePassResponse> GetPassById(Guid id) => _mapper.Map<SatellitePassResponse>(await _repository.GetById(id));
 
         public async Task<SatellitePassResponse> UpdatePass(UpdateSatelliteModel updateModel)
         {

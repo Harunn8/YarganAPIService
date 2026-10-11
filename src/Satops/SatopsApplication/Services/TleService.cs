@@ -86,12 +86,7 @@ namespace SatopsApplication.Services
             return passes.OrderBy(x => x.AOS).ToList();
         }
 
-        public async Task<bool> DeleteTle()
-        {
-            var response = await _repository.DeleteAll();
-
-            return response == true ? true : false;
-        }
+        public async Task<bool> DeleteTle() => await _repository.DeleteAll();
 
         // SatellitePassService içerisinde AutoSchedule işlemi için gerekli olan uyduları getirmek için kullanılacak method.
         public async Task<List<SatellitePassResponseFromTle>> GetPassesFromTle()
@@ -105,15 +100,8 @@ namespace SatopsApplication.Services
             return passes;
         }
 
-        public async Task<TleResponse> GetTle()
-        {
-            var response = await _repository.GetTleByDefault();
-
-            if (response == null) return null;
-
-            return _mapper.Map<TleResponse>(response);
-        }
-
+        public async Task<TleResponse> GetTle() => _mapper.Map<TleResponse>(await _repository.GetTleByDefault());
+ 
         public async Task<List<ActiveTleResponses>> GetActiveTle(string satelliteName)
         {
             if (string.IsNullOrWhiteSpace(satelliteName)) return null;

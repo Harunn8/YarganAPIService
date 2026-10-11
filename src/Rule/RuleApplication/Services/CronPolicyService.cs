@@ -31,33 +31,13 @@ namespace RuleApplication.Services
             return _mapper.Map<CronPolicyResponse>(response);
         }
 
-        public async Task<bool> DeleteCronPolicy(Guid id)
-        {
-            var response = await _repository.Delete(id);
+        public async Task<bool> DeleteCronPolicy(Guid id) => await _repository.Delete(id);
 
-            return response == true ? true : false;
-        }
+        public async Task<List<CronPolicyResponse>> GetActiveCronJob() => _mapper.Map<List<CronPolicyResponse>>(await _repository.GetActiveJobs());
 
-        public async Task<List<CronPolicyResponse>> GetActiveCronJob()
-        {
-            var response = await _repository.GetActiveJobs();
+        public async Task<List<CronPolicyResponse>> GetAllCronPolicy() => _mapper.Map<List<CronPolicyResponse>>(await _repository.GetAllAsync());
 
-            return _mapper.Map<List<CronPolicyResponse>>(response);
-        }
-
-        public async Task<List<CronPolicyResponse>> GetAllCronPolicy()
-        {
-            var response = await _repository.GetAllAsync();
-
-            return _mapper.Map<List<CronPolicyResponse>>(response);
-        }
-
-        public async Task<CronPolicyResponse> GetCronPolicyById(Guid id)
-        {
-            var response = await _repository.GetCronJobById(id);
-
-            return _mapper.Map<CronPolicyResponse>(response);
-        }
+        public async Task<CronPolicyResponse> GetCronPolicyById(Guid id) => _mapper.Map<CronPolicyResponse>(await _repository.GetCronJobById(id));
 
         public async Task<bool> StartOrStopCronPolicy(Guid id, bool isStart)
         {

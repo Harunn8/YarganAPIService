@@ -33,33 +33,13 @@ namespace RuleApplication.Services
             return _mapper.Map<PolicyScriptResponse>(response);
         }
 
-        public async Task<bool> DeleteAllPolicyScript()
-        {
-            var response = await _repository.DeleteAll();
+        public async Task<bool> DeleteAllPolicyScript() => await _repository.DeleteAll();
 
-            return response;
-        }
+        public async Task<bool> DeletePolicyScriptById(Guid id) => await (_repository.Delete(id));
 
-        public async Task<bool> DeletePolicyScriptById(Guid id)
-        {
-            var response = await (_repository.Delete(id));
+        public async Task<List<PolicyScriptResponse>> GetAllPolicyScript() => _mapper.Map<List<PolicyScriptResponse>>(await _repository.GetAllAsync());
 
-            return response;
-        }
-
-        public async Task<List<PolicyScriptResponse>> GetAllPolicyScript()
-        {
-            var response = await _repository.GetAllAsync();
-
-            return _mapper.Map<List<PolicyScriptResponse>>(response);
-        }
-
-        public async Task<PolicyScriptResponse> GetPolicyScriptById(Guid id)
-        {
-            var response = await _repository.GetById(id);
-
-            return _mapper.Map<PolicyScriptResponse>(response);
-        }
+        public async Task<PolicyScriptResponse> GetPolicyScriptById(Guid id) => _mapper.Map<PolicyScriptResponse>(await _repository.GetById(id));
 
         public async Task<bool> RunScript(Guid id)
         {

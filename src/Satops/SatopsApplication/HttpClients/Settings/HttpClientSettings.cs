@@ -8,5 +8,6 @@
         public string AddCronPolicyUrl { get; set; }
         public string GetActiveTleUrl { get; set; }
         public string DeletePolicyScriptUrl { get; set; }
+        public string DeleteCronPolicyUrl { get; set; }
     }
 }

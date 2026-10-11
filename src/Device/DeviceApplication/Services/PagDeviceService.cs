@@ -3,6 +3,7 @@ using DeviceApplication.Models;
 using DeviceApplication.Responses;
 using DeviceApplication.Services.Base;
 using EventBusBrokers.Services.Base;
+using Helpers.TokenInformation;
 using Helpers.UserLogService.Model;
 using Helpers.UserLogService.Service.Base;
 using Newtonsoft.Json;
@@ -17,13 +18,15 @@ namespace DeviceApplication.Services
         private readonly IMqttConnection _mqtt;
         private readonly IMapper _mapper;
         private readonly IUserLogService _userLog;
+        private readonly ITokenInformationService _tokenInformation;
 
-        public PagDeviceService(PagDeviceRepository repository, IMqttConnection mqtt, IMapper mapper, IUserLogService userLog)
+        public PagDeviceService(PagDeviceRepository repository, IMqttConnection mqtt, IMapper mapper, IUserLogService userLog, ITokenInformationService tokenInformation)
         {
             _repository = repository;
             _mqtt = mqtt;
             _mapper = mapper;
             _userLog = userLog;
+            _tokenInformation = tokenInformation;
         }
 
         public async Task<PagDeviceResponse> AddPagDevice(AddPagDeviceModel addModel)
@@ -39,7 +42,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(AddPagDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Add
             };
 
@@ -67,7 +70,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(DeletePagDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Delete
             };
 
@@ -79,37 +82,17 @@ namespace DeviceApplication.Services
         }
 
         // DCM ilk ayağa kalktığında bu endpoint'i kullanacaktır.
-        public async Task<List<PagDeviceResponse>> GetActivePagDevices()
-        {
-            var pagDevices = (await _repository.GetQueryable(x => x.Id != Guid.Empty && !x.InMaintenance && !x.IsDeleted)).ToList();
+        public async Task<List<PagDeviceResponse>> GetActivePagDevices() => _mapper.Map<List<PagDeviceResponse>>(await _repository.GetQueryable(x => x.Id != Guid.Empty && !x.InMaintenance && !x.IsDeleted)).ToList();
 
-            return _mapper.Map<List<PagDeviceResponse>>(pagDevices);
-        }
+        public async Task<List<PagDeviceResponse>> GetAllPagDevice() => _mapper.Map<List<PagDeviceResponse>>(await _repository.GetAllAsync());
 
-        public async Task<List<PagDeviceResponse>> GetAllPagDevice()
-        {
-            return _mapper.Map<List<PagDeviceResponse>>(await _repository.GetAllAsync());
-        }
+        public async Task<PagDeviceResponse> GetPagDeviceById(Guid id) => _mapper.Map<PagDeviceResponse>(await _repository.GetById(id));
 
-        public async Task<PagDeviceResponse> GetPagDeviceById(Guid id)
-        {
-            return _mapper.Map<PagDeviceResponse>(await _repository.GetById(id));
-        }
+        public async Task<PagDeviceResponse> GetPagDeviceByName(string name) => _mapper.Map<PagDeviceResponse>((await _repository.GetQueryable(x => x.Name == name)).FirstOrDefault());
 
-        public async Task<PagDeviceResponse> GetPagDeviceByName(string name)
-        {
-            return _mapper.Map<PagDeviceResponse>((await _repository.GetQueryable(x => x.Name == name)).FirstOrDefault());
-        }
+        public async Task<List<PagDeviceResponse>> GetPagDevicesByDeviceId(Guid deviceId) => _mapper.Map<List<PagDeviceResponse>>(await _repository.GetPagDevicesByDeviceId(deviceId));
 
-        public async Task<List<PagDeviceResponse>> GetPagDevicesByDeviceId(Guid deviceId)
-        {
-            return _mapper.Map<List<PagDeviceResponse>>(await _repository.GetPagDevicesByDeviceId(deviceId));
-        }
-
-        public async Task<List<PagDeviceResponse>> GetPagDevicesByPagId(Guid pagId)
-        {
-            return _mapper.Map<List<PagDeviceResponse>>(await _repository.GetPagDevicesByPagId(pagId));
-        }
+        public async Task<List<PagDeviceResponse>> GetPagDevicesByPagId(Guid pagId) => _mapper.Map<List<PagDeviceResponse>>(await _repository.GetPagDevicesByPagId(pagId));
 
         public async Task<bool> StartOrStopCommunication(Guid id, bool isStart)
         {
@@ -138,7 +121,7 @@ namespace DeviceApplication.Services
                     MethodName = nameof(StartOrStopCommunication),
                     AppName = nameof(DeviceService),
                     TimeStamp = DateTime.Now,
-                    UserName = "Administrator",
+                    UserName = _tokenInformation.GetUserName(),
                     LogType = LogType.StartOrStopCommunication
                 };
 
@@ -172,7 +155,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(UpdatePagDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Update
             };
 

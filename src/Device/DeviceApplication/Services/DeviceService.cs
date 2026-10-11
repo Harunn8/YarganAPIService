@@ -2,6 +2,7 @@
 using DeviceApplication.Models;
 using DeviceApplication.Responses;
 using DeviceApplication.Services.Base;
+using Helpers.TokenInformation;
 using Helpers.UserLogService.Model;
 using Helpers.UserLogService.Service.Base;
 using Newtonsoft.Json;
@@ -15,12 +16,14 @@ namespace DeviceApplication.Services
         private readonly DeviceRepository _repository;
         private readonly IMapper _mapper;
         private readonly IUserLogService _userLog;
+        private readonly ITokenInformationService _tokenInformation;
 
-        public DeviceService(DeviceRepository repository, IMapper mapper, IUserLogService userLog)
+        public DeviceService(DeviceRepository repository, IMapper mapper, IUserLogService userLog, ITokenInformationService tokenInformation)
         {
             _repository = repository;
             _mapper = mapper;
             _userLog = userLog;
+            _tokenInformation = tokenInformation;
         }
 
         public async Task<DeviceResponse> AddSNMPDevice(AddSNMPDeviceModel addSnmpModel)
@@ -44,7 +47,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(AddSNMPDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Add
             };
 
@@ -78,7 +81,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(AddTCPDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Add
             };
 
@@ -102,7 +105,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(DeleteDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Delete
             };
 
@@ -113,40 +116,15 @@ namespace DeviceApplication.Services
             return response ? true : false;
         }
 
-        public async Task<List<DeviceResponse>> GetAllDevice()
-        {
-            var response = await _repository.GetAllAsync();
+        public async Task<List<DeviceResponse>> GetAllDevice() => _mapper.Map<List<DeviceResponse>>(await _repository.GetAllAsync());
 
-            return _mapper.Map<List<DeviceResponse>>(response);
-        }
+        public async Task<DeviceResponse> GetDeviceById(Guid id) => _mapper.Map<DeviceResponse>(await _repository.GetById(id));
 
-        public async Task<DeviceResponse> GetDeviceById(Guid id)
-        {
-            var response = await _repository.GetById(id);
+        public async Task<List<DeviceResponse>> GetDevicesByPagId(Guid pagId) => _mapper.Map<List<DeviceResponse>>(await _repository.GetQueryable(x => x.PagId == pagId)).ToList();
 
-            return _mapper.Map<DeviceResponse>(response);
-        }
+        public async Task<List<DeviceResponse>> GetSNMPDevices() => _mapper.Map<List<DeviceResponse>>(await _repository.GetSNMPDevices());
 
-        public async Task<List<DeviceResponse>> GetDevicesByPagId(Guid pagId)
-        {
-            var response = (await _repository.GetQueryable(x => x.PagId == pagId)).ToList();
-
-            return _mapper.Map<List<DeviceResponse>>(response);
-        }
-
-        public async Task<List<DeviceResponse>> GetSNMPDevices()
-        {
-            var response = await _repository.GetSNMPDevices();
-
-            return _mapper.Map<List<DeviceResponse>>(response);
-        }
-
-        public async Task<List<DeviceResponse>> GetTCPDevices()
-        {
-            var response = await _repository.GetTCPDevices();
-
-            return _mapper.Map<List<DeviceResponse>>(response);
-        }
+        public async Task<List<DeviceResponse>> GetTCPDevices() => _mapper.Map<List<DeviceResponse>>(await _repository.GetTCPDevices());
 
         public async Task<DeviceResponse> UpdateDevice(UpdateDeviceModel updateModel)
         {
@@ -161,7 +139,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(UpdateDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Update
             };
 
@@ -185,7 +163,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(UpdateSNMPDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Update
             };
 
@@ -209,7 +187,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(UpdateTCPDevice),
                 AppName = nameof(DeviceService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Update
             };
 

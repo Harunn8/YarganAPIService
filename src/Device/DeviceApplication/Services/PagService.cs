@@ -2,6 +2,7 @@
 using DeviceApplication.Models;
 using DeviceApplication.Responses;
 using DeviceApplication.Services.Base;
+using Helpers.TokenInformation;
 using Helpers.UserLogService.Model;
 using Helpers.UserLogService.Service.Base;
 using YarganCore.Entities;
@@ -14,12 +15,14 @@ namespace DeviceApplication.Services
         private readonly PagRepository _repository;
         private readonly IUserLogService _userLog;
         private readonly IMapper _mapper;
+        private readonly ITokenInformationService _tokenInformation;
 
-        public PagService(PagRepository repository, IUserLogService userLog, IMapper mapper)
+        public PagService(PagRepository repository, IUserLogService userLog, IMapper mapper, ITokenInformationService tokenInformation)
         {
             _repository = repository;
             _userLog = userLog;
             _mapper = mapper;
+            _tokenInformation = tokenInformation;
         }
 
         public async Task<PagResponse> AddPag(AddPagModel addModel)
@@ -37,7 +40,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(AddPag),
                 AppName = nameof(PagService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Add
             };
 
@@ -61,7 +64,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(DeletePag),
                 AppName = nameof(PagService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Delete
             };
 
@@ -72,15 +75,9 @@ namespace DeviceApplication.Services
             return response ? true : false;
         }
 
-        public async Task<List<PagResponse>> GetAllPags()
-        {
-            return _mapper.Map<List<PagResponse>>(await _repository.GetAllAsync());
-        }
+        public async Task<List<PagResponse>> GetAllPags() => _mapper.Map<List<PagResponse>>(await _repository.GetAllAsync());
 
-        public async Task<PagResponse> GetPagWithDeviceId(Guid deviceId)
-        {
-            return _mapper.Map<PagResponse>(await _repository.GetPagByDeviceId(deviceId));
-        }
+        public async Task<PagResponse> GetPagWithDeviceId(Guid deviceId) => _mapper.Map<PagResponse>(await _repository.GetPagByDeviceId(deviceId));
 
         public async Task<PagResponse> UpdatePag(UpdatePagModel updateModel)
         {
@@ -93,7 +90,7 @@ namespace DeviceApplication.Services
                 MethodName = nameof(UpdatePag),
                 AppName = nameof(PagService),
                 TimeStamp = DateTime.Now,
-                UserName = "Administrator",
+                UserName = _tokenInformation.GetUserName(),
                 LogType = LogType.Update
             };
 

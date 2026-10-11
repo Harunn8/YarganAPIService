@@ -16,7 +16,7 @@ namespace DeviceAPI.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet("getall")]
         public async Task<ActionResult<ApiResponse>> GetAllDevice()
         {
             var response = await _service.GetAllDevice();
