@@ -24,7 +24,7 @@ namespace DeviceAPI.Controllers
             return response.Count == 0 ? new ApiResponse(System.Net.HttpStatusCode.BadRequest, null, $"Pags not found") : new ApiResponse(System.Net.HttpStatusCode.OK, response);
         }
 
-        [HttpGet]
+        [HttpGet("getbydeviceid/{deviceId}")]
         public async Task<ActionResult<ApiResponse>> GetPagWithDeviceId(Guid deviceId)
         {
             var response = await _service.GetPagWithDeviceId(deviceId);
