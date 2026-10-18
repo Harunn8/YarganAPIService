@@ -88,11 +88,11 @@ namespace SatopsApplication.Services
 
             var tleConfiguration = await _tleService.GetTle();
 
-            for (int i = 0; i < willBeSchedulePasses.Count; i++)
+            for (int i = 0; i < willBeSchedulePasses.Count() -1; i++)
             {
                 var currentPass = willBeSchedulePasses[i];
 
-                var nextPass = willBeSchedulePasses.ElementAtOrDefault(i + 1);
+                var nextPass = willBeSchedulePasses[i + 1] == null ? null : willBeSchedulePasses[i + 1];
 
                 // Çakışık geçiş durumu varsa, öncelikli geçişleri kontrol eder, yoksa son geçiş önceliklidir.
                 if (nextPass != null && IsOverlap(currentPass.AOS, currentPass.LOS, nextPass.AOS, nextPass.LOS, tleConfiguration.SetupInterval))
