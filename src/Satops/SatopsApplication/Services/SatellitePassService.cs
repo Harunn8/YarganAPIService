@@ -90,7 +90,7 @@ namespace SatopsApplication.Services
 
             var tleConfiguration = await _tleService.GetTle();
 
-            for (int i = 0; i < willBeSchedulePasses.Count; i++)
+            for (int i = 0; i < willBeSchedulePasses.Count() - 1; i++)
             {
                 var currentPass = willBeSchedulePasses[i];
 
