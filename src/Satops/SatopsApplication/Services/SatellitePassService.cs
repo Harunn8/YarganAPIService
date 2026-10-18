@@ -94,7 +94,6 @@ namespace SatopsApplication.Services
 
                 var nextPass = willBeSchedulePasses[i + 1] == null ? null : willBeSchedulePasses[i + 1];
 
-                // Çakışık geçiş durumu varsa, öncelikli geçişleri kontrol eder, yoksa son geçiş önceliklidir.
                 if (nextPass != null && IsOverlap(currentPass.AOS, currentPass.LOS, nextPass.AOS, nextPass.LOS, tleConfiguration.SetupInterval))
                 {
                     var isImportentPass = willBeSchedulePasses[i].IsImportent ? nextPass : currentPass;
