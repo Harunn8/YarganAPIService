@@ -1,0 +1,160 @@
+# Yargan'ın tamamını tek makinede çalıştırır: 5 API, Yargan Console, Postgres, Mongo, Mosquitto.
+#
+#   docker compose -f compose.laptop.yml up -d --build
+#
+# Arayüz:  http://localhost:8080      (ilk giriş: aşağıdaki SEED_* bilgileri)
+# Scalar:  http://localhost:5098/scalar (Device), 5165 (Rule), 5131 (Satops), 5050 (User), 5002 (Login)
+#
+# docker-compose.yml ve docker-compose.override.yml Visual Studio'nun container araçları için
+# kalıyor; bu dosya onlardan bağımsızdır (-f ile verildiğinde override dosyası okunmaz).
+# Host portları launchSettings.json'daki http profilleriyle aynı, böylece bir API'yi durdurup
+# yerine `dotnet run` ile çalışanı koyabilirsin.
+
+name: yargan
+
+x-api-env: &api-env
+  ASPNETCORE_ENVIRONMENT: Development
+  ASPNETCORE_URLS: http://+:8080
+  TZ: Europe/Istanbul
+  ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=Yargan;Username=postgres;Password=${POSTGRES_PASSWORD:-root}
+  Mqtt__Host: mosquitto
+  Mqtt__Port: "1883"
+  MongoDbSettings__ConnectionString: mongodb://mongo:27017
+  HealthCheck__EndPoint__Uri: http://localhost:8080/health
+
+x-api: &api
+  restart: unless-stopped
+  depends_on:
+    migrator:
+      condition: service_completed_successfully
+    mosquitto:
+      condition: service_started
+    mongo:
+      condition: service_started
+
+services:
+  # ------------------------------------------------------------------ altyapı
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: Yargan
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      TZ: Europe/Istanbul
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d Yargan"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes: [mongodata:/data/db]
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports: ["1883:1883", "9001:9001"]
+    volumes: [./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro]
+    restart: unless-stopped
+
+  # EF Core migration'larını uygular ve çıkar; API'ler bunun bitmesini bekler.
+  migrator:
+    build:
+      context: .
+      dockerfile: docker/migrator.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=Yargan;Username=postgres;Password=${POSTGRES_PASSWORD:-root}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # ------------------------------------------------------------------ API'ler
+  ruleapi:
+    <<: *api
+    build: { context: ., dockerfile: src/Rule/RuleAPI/Dockerfile }
+    environment:
+      <<: *api-env
+      HealthCheck__EndPoint__Name: RuleAPI
+    ports: ["5165:8080"]
+
+  satopsapi:
+    <<: *api
+    build: { context: ., dockerfile: src/Satops/SatopsAPI/Dockerfile }
+    environment:
+      <<: *api-env
+      HealthCheck__EndPoint__Name: SatopsAPI
+      HttpClientEndPoints__AddPolicyScriptUrl: http://ruleapi:8080/api/PolicyScript/add
+      HttpClientEndPoints__GetPolicyScriptUrl: http://ruleapi:8080/api/PolicyScript/getbyid
+      HttpClientEndPoints__DeletePolicyScriptUrl: http://ruleapi:8080/api/PolicyScript/delete
+      HttpClientEndPoints__StartCronPolicyScriptUrl: http://ruleapi:8080/api/CronPolicy/startorstop
+      HttpClientEndPoints__AddCronPolicyUrl: http://ruleapi:8080/api/CronPolicy/add
+      HttpClientEndPoints__GetActiveTleUrl: https://tle.ivanstanojevic.me/api/tle?search=
+    ports: ["5131:8080"]
+
+  deviceapi:
+    <<: *api
+    build: { context: ., dockerfile: src/Device/DeviceAPI/Dockerfile }
+    environment:
+      <<: *api-env
+      HealthCheck__EndPoint__Name: DeviceAPI
+    ports: ["5098:8080"]
+
+  userapi:
+    <<: *api
+    build: { context: ., dockerfile: src/User/UserAPI/Dockerfile }
+    environment:
+      <<: *api-env
+      HealthCheck__EndPoint__Name: UserAPI
+    ports: ["5050:8080"]
+
+  loginapi:
+    <<: *api
+    build: { context: ., dockerfile: src/Login/LoginAPI/Dockerfile }
+    environment:
+      <<: *api-env
+      HealthCheck__EndPoint__Name: LoginAPI
+      HttpClientEndPoints__LoginUrl: http://userapi:8080/api/User/Login?
+    ports: ["5002:8080"]
+
+  # İlk açılışta, hiç kullanıcı yoksa bir operatör hesabı açar ve çıkar.
+  seed:
+    image: curlimages/curl:8.11.1
+    depends_on: [userapi]
+    environment:
+      SEED_USER: ${SEED_USER:-operator}
+      SEED_PASSWORD: ${SEED_PASSWORD:-yargan123}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        for i in $(seq 1 60); do curl -sf http://userapi:8080/health >/dev/null && break; sleep 2; done
+        if curl -sf "http://userapi:8080/api/User/GetUserByUserName/$${SEED_USER}" | grep -q userName; then
+          echo "$${SEED_USER} zaten var"; exit 0
+        fi
+        curl -sf -X POST http://userapi:8080/api/User/AddUser -H 'Content-Type: application/json' \
+          -d "{\"userName\":\"$${SEED_USER}\",\"password\":\"$${SEED_PASSWORD}\",\"name\":\"İstasyon\",\"surname\":\"Operatörü\",\"email\":\"$${SEED_USER}@yargan.local\",\"roleId\":\"00000000-0000-0000-0000-000000000000\"}" \
+          && echo " -> $${SEED_USER} oluşturuldu"
+    restart: "no"
+
+  # ------------------------------------------------------------------ arayüz
+  console:
+    build: { context: src/YarganConsole }
+    environment:
+      DEVICE_API_URL: http://deviceapi:8080
+      RULE_API_URL: http://ruleapi:8080
+      SATOPS_API_URL: http://satopsapi:8080
+      USER_API_URL: http://userapi:8080
+      LOGIN_API_URL: http://loginapi:8080
+      MQTT_WS_URL: http://mosquitto:9001
+    ports: ["8080:80"]
+    depends_on: [deviceapi, ruleapi, satopsapi, userapi, loginapi, mosquitto]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  mongodata:
